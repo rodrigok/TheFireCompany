@@ -1,0 +1,66 @@
+<html ng-app="TheFireCompany">
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+	<title></title>
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.css">
+	<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.6/socket.io.min.js"></script>
+	<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+	<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.3/angular.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/angular-i18n/1.2.3/angular-locale_pt-br.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.3/angular-route.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.3/angular-touch.min.js"></script>
+
+	<script type="text/javascript">
+		angular.module('TheFireCompany', [], function ($interpolateProvider) {
+			$interpolateProvider.startSymbol('[[');
+			$interpolateProvider.endSymbol(']]');
+		});
+
+		angular.module('TheFireCompany').
+			factory('socket', function ($rootScope, $timeout) {
+				var socket = io.connect('http://' + location.host);
+				return {
+					on: function (eventName, callback) {
+						socket.on(eventName, function () {  
+							var args = arguments;
+							$timeout(function () {
+								callback.apply(socket, args);
+							}, 0);
+						});
+					},
+					emit: function (eventName, data, callback) {
+						socket.emit(eventName, data, function () {
+							var args = arguments;
+							$rootScope.$apply(function () {
+								if (callback) {
+									callback.apply(socket, args);
+								}
+							});
+						});
+					}
+				};
+			});
+		
+		angular.module('TheFireCompany').run(function($rootScope, $http, socket) {
+			$rootScope.next = function() {
+				socket.emit('next')
+			}
+			$rootScope.previous = function() {
+				socket.emit('previous')
+			}
+		});
+	</script>
+</head>
+<body>
+	<div class="container">
+		<ul class="pager">
+			<li><a href="#" ng-click="previous()">Previous</a></li>
+			<li><a href="#" ng-click="next()">Next</a></li>
+		</ul>
+	</div>
+</div>
+
+</body>
+</html>
