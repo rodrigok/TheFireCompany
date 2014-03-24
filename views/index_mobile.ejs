@@ -20,7 +20,8 @@
 
 		angular.module('TheFireCompany').
 			factory('socket', function ($rootScope, $timeout) {
-				var socket = io.connect('http://' + location.host);
+				var host = location.origin.replace(/^http/, 'ws')
+				var socket = io.connect(host);
 				return {
 					on: function (eventName, callback) {
 						socket.on(eventName, function () {  
