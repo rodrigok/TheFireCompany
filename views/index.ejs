@@ -20,6 +20,7 @@
 			factory('socket', function ($rootScope, $timeout) {
 				var host = location.origin.replace(/^http/, 'ws')
 				var socket = io.connect(host);
+				socket.emit('create', '<%= hash %>');
 				return {
 					on: function (eventName, callback) {
 						socket.on(eventName, function () {  
@@ -44,6 +45,7 @@
 		
 		angular.module('TheFireCompany').run(function($rootScope, $http, socket) {
 			$rootScope.page = 1;
+			$rootScope.hash = '<%= hash %>';
 			socket.on('next', function(data) {
 				$rootScope.page++;
 			});
@@ -55,6 +57,8 @@
 </head>
 <body>
 	<h1 class="text-center">
+		[[hash]]
+		<br>
 		Page [[page]]
 	</h1>
 </div>

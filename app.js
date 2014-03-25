@@ -25,27 +25,25 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // development only
 if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
+	app.use(express.errorHandler());
 }
 
-app.get('/', routes.index);
+app.get('/:hash?', routes.index);
 
 var server = http.createServer(app).listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
+	console.log('Express server listening on port ' + app.get('port'));
 });
 
 var io = require('socket.io').listen(server);
 
 io.sockets.on('connection', function (socket) {
-  // socket.emit('news', { hello: 'world' });
-  socket.on('next', function (data) {
-    console.log('next', data);
-    // socket.emit('next');
-    io.sockets.emit('next');
-  });
-  socket.on('previous', function (data) {
-    console.log('previous', data);
-    // socket.emit('next');
-    io.sockets.emit('previous');
-  });
+	socket.on('create', function(room) {
+		socket.join(room);
+	});
+	socket.on('next', function (data) {
+		socket.broadcast.to(data.room).emit('next');
+	});
+	socket.on('previous', function (data) {
+		socket.broadcast.to(data.room).emit('previous');
+	});
 });

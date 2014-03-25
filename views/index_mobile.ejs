@@ -22,6 +22,7 @@
 			factory('socket', function ($rootScope, $timeout) {
 				var host = location.origin.replace(/^http/, 'ws')
 				var socket = io.connect(host);
+				socket.emit('create', '<%= hash %>');
 				return {
 					on: function (eventName, callback) {
 						socket.on(eventName, function () {  
@@ -45,22 +46,31 @@
 			});
 		
 		angular.module('TheFireCompany').run(function($rootScope, $http, socket) {
+			$rootScope.hash = '<%= hash %>';
 			$rootScope.next = function() {
-				socket.emit('next')
+				socket.emit('next', {room: $rootScope.hash})
 			}
 			$rootScope.previous = function() {
-				socket.emit('previous')
+				socket.emit('previous', {room: $rootScope.hash})
+			}
+			$rootScope.go = function() {
+				$rootScope.hash = $rootScope.input_hash;
 			}
 		});
 	</script>
 </head>
 <body>
-	<div class="container">
+	<div class="container" ng-if="hash">
+		[[hash]]
 		<ul class="pager">
 			<li><a href="#" ng-click="previous()">Previous</a></li>
 			<li><a href="#" ng-click="next()">Next</a></li>
 		</ul>
 	</div>
+	<!-- <div class="container" ng-if="!hash">
+		<input type="text" class="input-control" ng-model="input_hash">
+		<a ng-click="go()">go</a>
+	</div> -->
 </div>
 
 </body>
